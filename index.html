@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ff6a1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="농구성장노트">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>농구성장노트</title>
+<style>
+:root{
+  --o:#ff6a1a;--o2:#ff8a3d;--o-soft:#fff1e8;
+  --navy:#14213d;--ink:#1c2233;--mute:#6b7385;--line:#e8eaf0;
+  --bg:#f5f6fa;--card:#fff;--good:#1fa66a;--good-soft:#e6f6ee;--bad:#e5484d;--bad-soft:#fdecec;--blue:#2f6fed;
+  --r:16px;
+  --sat:max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px));
+  --sab:max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px));
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;color:var(--ink);background:#dfe3ec;font-size:15px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+#app{position:relative;display:flex;flex-direction:column;height:100dvh;max-width:480px;margin:0 auto;background:var(--bg);overflow:hidden}
+@media (min-width:600px){
+  body{display:flex;align-items:center;justify-content:center}
+  #app{height:min(860px,96dvh);width:400px;border-radius:38px;box-shadow:0 0 0 10px #0f1524,0 30px 80px rgba(20,33,61,.35)}
+}
+header.top{flex:none;background:linear-gradient(135deg,var(--navy),#22335c);color:#fff;padding:calc(14px + var(--sat)) 18px 14px;display:flex;align-items:center;gap:10px}
+header.top .logo{font-size:22px}
+header.top h1{margin:0;font-size:17px;flex:1;letter-spacing:-.3px}
+header.top button#who{max-width:52%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
+header.top button{color:#fff;font-size:13px;background:rgba(255,255,255,.14);padding:0 16px;min-height:40px;border-radius:99px}
+main#view{flex:1;overflow-y:auto;padding:14px 14px 22px;-webkit-overflow-scrolling:touch}
+nav.tabs{flex:none;display:grid;grid-template-columns:repeat(5,1fr);background:#fff;border-top:1px solid var(--line);padding-bottom:var(--sab)}
+nav.tabs button{min-height:58px;justify-content:center;padding:6px 0;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:11px;color:var(--mute)}
+nav.tabs button .ic{font-size:21px;filter:grayscale(1);opacity:.6}
+nav.tabs button.on{color:var(--o);font-weight:700}
+nav.tabs button.on .ic{filter:none;opacity:1}
+.card{background:var(--card);border-radius:var(--r);padding:15px;margin-bottom:12px;box-shadow:0 1px 3px rgba(20,33,61,.06)}
+.card h2{margin:0 0 10px;font-size:15px;display:flex;align-items:center;gap:6px}
+.card h2 .sp{flex:1}
+.card h2 .more{font-size:13px;color:var(--o);font-weight:700;padding:0 12px;min-height:44px;margin:-14px -12px -14px 0}
+.hero{background:linear-gradient(135deg,var(--o),var(--o2));color:#fff;position:relative;overflow:hidden}
+.hero:after{content:"🏀";position:absolute;right:-8px;bottom:-18px;font-size:92px;opacity:.18}
+.hero .nm{font-size:19px;font-weight:800}
+.hero .sub{font-size:12.5px;opacity:.92;margin-top:2px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.stat{background:rgba(255,255,255,.2);border-radius:12px;padding:9px 6px;text-align:center}
+.stat b{display:block;font-size:19px}
+.stat span{font-size:11px;opacity:.9}
+.bar{height:10px;background:#eceef4;border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--o),var(--o2));border-radius:99px}
+.row{display:flex;align-items:center;gap:10px}
+.between{justify-content:space-between}
+.muted{color:var(--mute);font-size:12.5px}
+.chk{display:flex;align-items:center;gap:11px;padding:12px 0;min-height:52px;border-bottom:1px solid var(--line);text-align:left;width:100%}
+.chk:last-child{border-bottom:0}
+.box{flex:none;width:24px;height:24px;border-radius:8px;border:2px solid #cdd2de;display:grid;place-items:center;color:#fff;font-size:14px;font-weight:800;transition:.15s}
+.chk.done .box{background:var(--o);border-color:var(--o)}
+.chk.done .t{color:var(--mute);text-decoration:line-through}
+.chk .t{flex:1}
+.x{color:#9aa1b3;font-size:18px;min-width:44px;min-height:44px;display:grid;place-items:center;margin:-8px -10px -8px 0;flex:none}
+.ring{--p:0;width:64px;height:64px;border-radius:50%;background:conic-gradient(var(--o) calc(var(--p)*1%),#eceef4 0);display:grid;place-items:center;flex:none}
+.ring b{width:50px;height:50px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:14px}
+.seg{display:flex;background:#e6e9f1;border-radius:12px;padding:3px;margin-bottom:12px}
+.seg button{flex:1;padding:0;min-height:44px;border-radius:10px;font-weight:600;font-size:13.5px;color:var(--mute)}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.btn{background:var(--o);color:#fff;border-radius:12px;padding:0 16px;min-height:48px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.btn.sec{background:#eef0f6;color:var(--ink)}
+.btn.line{background:#fff;border:1.5px solid var(--o);color:var(--o)}
+.btn.danger{background:var(--bad-soft);color:var(--bad)}
+.btn.sm{padding:0 14px;min-height:44px;font-size:13.5px;border-radius:12px}
+.btn.block{display:flex;width:100%}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+form.f{display:grid;gap:10px}
+.fld{display:grid;gap:4px}
+.fld label{font-size:12px;color:var(--mute);font-weight:600}
+.fld input,.fld select,.fld textarea{font-size:16px;min-height:46px;border:1.5px solid var(--line);border-radius:11px;padding:10px 11px;background:#fff;width:100%;min-width:0}
+.fld input:focus,.fld textarea:focus,.fld select:focus{outline:0;border-color:var(--o)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+.tbl th{font-size:11.5px;color:var(--mute);text-align:left;padding:4px 4px}
+.tbl td{padding:4px 4px;border-top:1px solid var(--line)}
+.delta{color:var(--good);font-weight:700;font-size:12px}
+.pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px;background:var(--o-soft);color:var(--o);font-weight:700}
+.food{display:flex;gap:11px;padding:9px 0;border-bottom:1px solid var(--line)}
+.food:last-child{border-bottom:0}
+.food .em{font-size:26px;width:36px;text-align:center;flex:none}
+.food b{display:block}
+.good h2{color:var(--good)}.bad h2{color:var(--bad)}
+.good{border-left:5px solid var(--good)}.bad{border-left:5px solid var(--bad)}
+.meal{padding:11px 0;border-bottom:1px solid var(--line)}
+.meal:last-child{border-bottom:0}
+.meal .hd{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-weight:700}
+.meal .hd .chkbtn{margin-left:auto;font-size:13px;padding:0 14px;min-height:44px;border-radius:99px;background:#eef0f6;color:var(--mute);font-weight:600}
+.meal.done .chkbtn{background:var(--good-soft);color:var(--good)}
+.meal input{width:100%;font-size:16px;min-height:46px;border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;background:#fff}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:5px 10px;border-radius:99px;background:var(--good-soft);color:var(--good);font-size:12px;font-weight:600}
+.dots{display:flex;gap:6px}
+.dot{flex:1;text-align:center;font-size:11px;color:var(--mute)}
+.dot i{display:block;width:100%;aspect-ratio:1;border-radius:50%;background:#eceef4;margin-bottom:3px;max-width:34px;margin-inline:auto}
+.dot.full i{background:var(--o)}.dot.half i{background:#ffc6a1}
+.dot.today{color:var(--o);font-weight:800}
+.sch{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);align-items:center}
+.sch:last-child{border-bottom:0}
+.sch .tm{flex:none;width:52px;font-weight:800;color:var(--navy);font-size:13.5px}
+.sch .tt{flex:1}
+.dayhd{display:flex;align-items:center;gap:8px;margin-bottom:2px;font-weight:800}
+.dayhd .d{width:28px;height:28px;border-radius:9px;background:var(--navy);color:#fff;display:grid;place-items:center;font-size:13px}
+.dayhd.today .d{background:var(--o)}
+.news{display:flex;gap:12px;padding:12px;background:#fff;border-radius:var(--r);margin-bottom:10px;box-shadow:0 1px 3px rgba(20,33,61,.06);width:100%;text-align:left}
+.news .th{flex:none;width:86px;height:104px;border-radius:10px;background:#eef0f6 center top/cover;overflow:hidden;position:relative;display:grid;place-items:center;color:#aab0c0;font-size:28px}
+.news .th img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top}
+.news .bd{flex:1;min-width:0}
+.news .tt{font-weight:700;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.news .mm{font-size:12.5px;color:var(--mute);margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.search{width:100%;font-size:16px;min-height:48px;border:0;background:#fff;border-radius:12px;padding:11px 14px;margin-bottom:12px;box-shadow:0 1px 3px rgba(20,33,61,.06)}
+.fab{position:absolute;right:16px;bottom:calc(74px + var(--sab));width:58px;height:58px;border-radius:50%;background:var(--o);color:#fff;font-size:28px;box-shadow:0 6px 16px rgba(255,106,26,.45);z-index:5}
+.sheet{position:absolute;inset:0;z-index:20;display:flex;align-items:flex-end}
+.sheet[hidden]{display:none}
+.scrim{position:absolute;inset:0;background:rgba(10,15,30,.5)}
+.panel{position:relative;background:var(--bg);width:100%;max-height:92%;overflow-y:auto;border-radius:22px 22px 0 0;padding:0 16px calc(24px + var(--sab));animation:up .22s ease}
+.panel.full{height:96%;max-height:96%}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.sheethd{position:sticky;top:0;z-index:3;background:var(--bg);margin:0 -16px 6px;height:54px;border-radius:22px 22px 0 0}
+.grab{width:42px;height:5px;border-radius:9px;background:#cfd3df;position:absolute;left:50%;top:10px;transform:translateX(-50%)}
+.closex{position:absolute;right:6px;top:4px;width:46px;height:46px;font-size:20px;color:var(--mute);border-radius:50%}
+.panel h3{margin:0 0 12px;font-size:17px}
+.shot{width:100%;display:block;border-radius:10px;border:1px solid var(--line);margin-bottom:8px;background:#fff}
+.note{font-size:12px;color:var(--mute);background:#fff8e6;border-radius:10px;padding:8px 10px}
+.toast{position:absolute;left:50%;bottom:96px;transform:translateX(-50%);background:rgba(20,33,61,.94);color:#fff;padding:9px 16px;border-radius:99px;font-size:13px;z-index:40;pointer-events:none;max-width:88%;text-align:center}
+.empty{text-align:center;color:var(--mute);padding:26px 10px}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid #fff;border-right-color:transparent;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+svg text{font-family:inherit}
+.prow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:#fff;border-radius:14px;padding:10px 12px;min-height:64px;margin-bottom:8px;border:2px solid transparent;box-shadow:0 1px 3px rgba(20,33,61,.06)}
+.prow.on{border-color:var(--o)}
+.prow .nm{flex:1;min-width:0}
+.prow .nm b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.av{flex:none;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:17px}
+.hi{font-size:12.5px;color:var(--mute);margin:-6px 0 12px}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <span class="logo">🏀</span>
+    <h1 id="ttl">농구성장노트</h1>
+    <button id="who" data-act="players" aria-label="선수 선택"><span id="whoN"></span> ▾</button>
+  </header>
+  <main id="view"></main>
+  <button class="fab" id="fab" data-act="newScrap" hidden aria-label="기사 추가">＋</button>
+  <nav class="tabs" id="nav">
+    <button data-act="tab" data-v="home"><span class="ic">🏠</span>홈</button>
+    <button data-act="tab" data-v="growth"><span class="ic">📏</span>성장</button>
+    <button data-act="tab" data-v="diet"><span class="ic">🥛</span>식단</button>
+    <button data-act="tab" data-v="ex"><span class="ic">⛹️</span>운동</button>
+    <button data-act="tab" data-v="news"><span class="ic">📰</span>기사</button>
+  </nav>
+  <div class="sheet" id="sheet" hidden>
+    <div class="scrim" data-act="closeSheet"></div>
+    <div class="panel" id="panel"></div>
+  </div>
+  <input type="file" id="file" accept="image/*" multiple hidden>
+  <input type="file" id="jfile" accept=".json,application/json" hidden>
+</div>
+
+<script>
+/* ===== 유틸 ===== */
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+/* window.open()은 안드로이드 앱(WebView)에서 무시될 수 있어 실제 링크 클릭으로 대신 연다 */
+function openExternal(url){const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove()}
+const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3);
+const pad=n=>String(n).padStart(2,'0');
+const fmt=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const today=()=>fmt(new Date());
+const addDays=(s,n)=>{const d=new Date(s+'T00:00:00');d.setDate(d.getDate()+n);return fmt(d)};
+const DOW=['일','월','화','수','목','금','토'];
+const ORDER=[1,2,3,4,5,6,0];
+const md=s=>{const d=new Date(s+'T00:00:00');return `${d.getMonth()+1}/${d.getDate()}`};
+const num=v=>{const n=parseFloat(v);return isNaN(n)?null:n};
+
+/* ===== 저장소 (텍스트=localStorage / 기사 캡처 이미지=IndexedDB) ===== */
+const KEY='hoopsGrowth.v1';   // 예전(선수 1명) 저장 형식 - 자동 이전
+const KEY2='hoopsGrowth.v2';  // 여러 선수 저장 형식
+const MOCK=new URLSearchParams(location.search).has('mock');
+let ALL=null;   // {v:2,cur:선수id,players:{id:데이터},sources:[검색 사이트]}
+let S=null;     // 현재 선수 데이터
+/* 기사 검색 사이트 - 검색어 자리에 {q} */
+const DEFAULT_SOURCES=[
+ {id:'jumpball',name:'점프볼',tpl:'https://jumpball.co.kr/news/search.php?q={q}&sfld=all'},
+ {id:'basketkorea',name:'바스켓코리아',tpl:'https://basketkorea.com/news/search.php?q={q}&sfld=all'},
+ {id:'rookie',name:'루키',tpl:'https://www.rookie.co.kr/news/articleList.html?view_type=sm&sc_word={q}'},
+];
+function ensureSources(a){if(!Array.isArray(a.sources)||!a.sources.length)a.sources=DEFAULT_SOURCES.map(s=>({...s}))}
+function save(){
+  if(MOCK)return;
+  try{if(S&&ALL.cur)ALL.players[ALL.cur]=S;localStorage.setItem(KEY2,JSON.stringify(ALL))}catch(e){toast('저장 공간이 부족해요')}
+}
+function loadAll(){
+  if(MOCK)return null;
+  try{const a=JSON.parse(localStorage.getItem(KEY2));if(a&&a.players){ensureSources(a);return a}}catch(e){}
+  try{const o=JSON.parse(localStorage.getItem(KEY));if(o&&o.profile){const id=uid();const a={v:2,cur:id,players:{[id]:o}};ensureSources(a);localStorage.setItem(KEY2,JSON.stringify(a));return a}}catch(e){}
+  return null;
+}
+function newPlayer(state){const id=uid();ALL.players[id]=state;ALL.cur=id;S=state;save();return id}
+const playerList=()=>Object.entries(ALL.players).map(([id,p])=>({id,p}));
+const AV=['#ff6a1a','#2f6fed','#1fa66a','#8b5cf6','#e5484d','#0ea5b7'];
+const avColor=id=>AV[[...id].reduce((a,c)=>a+c.charCodeAt(0),0)%AV.length];
+let _db;
+const memShots=new Map();
+const idb=()=>_db||(_db=new Promise((res,rej)=>{const r=indexedDB.open('hoopsShots',1);r.onupgradeneeded=()=>r.result.createObjectStore('shots');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);setTimeout(()=>rej(new Error('idb timeout')),5000)}));
+async function shotPut(id,blobs){if(MOCK){memShots.set(id,blobs);return}const d=await idb();return new Promise((res,rej)=>{const t=d.transaction('shots','readwrite');t.objectStore('shots').put(blobs,id);t.oncomplete=()=>res();t.onerror=()=>rej(t.error)})}
+async function shotGet(id){if(MOCK)return memShots.get(id)||[];try{const d=await idb();return await new Promise((res,rej)=>{const r=d.transaction('shots').objectStore('shots').get(id);r.onsuccess=()=>res(r.result||[]);r.onerror=()=>rej(r.error)})}catch(e){return[]}}
+async function shotDel(id){if(MOCK){memShots.delete(id);return}try{const d=await idb();d.transaction('shots','readwrite').objectStore('shots').delete(id)}catch(e){}}
+const urlCache={};
+async function shotUrls(id){if(urlCache[id])return urlCache[id];const u=(await shotGet(id)).map(b=>URL.createObjectURL(b));if(u.length)urlCache[id]=u;return u}
+function dropUrls(id){(urlCache[id]||[]).forEach(u=>URL.revokeObjectURL(u));delete urlCache[id]}
+
+/* ===== 초기 데이터 / 샘플 ===== */
+const FOODS_GOOD=[
+ ['🥛','우유·치즈·요거트','칼슘과 단백질. 하루 2~3회 유제품이 뼈 성장의 기본이에요.'],
+ ['🥚','계란','양질의 단백질과 비타민 D. 아침에 먹기 좋아요.'],
+ ['🐟','생선 (연어·고등어·멸치)','비타민 D, 오메가3, 칼슘. 주 2~3회 추천.'],
+ ['🍗','닭가슴살·살코기·소고기','근육 성장과 회복에 필요한 단백질, 아연·철분.'],
+ ['🫘','두부·콩류','식물성 단백질과 칼슘, 이소플라본.'],
+ ['🥦','브로콜리·시금치·채소','비타민 K·C, 칼슘, 마그네슘.'],
+ ['🍌','바나나·과일','운동 전후 에너지 보충, 칼륨으로 근육 경련 예방.'],
+ ['🥜','견과류','마그네슘과 좋은 지방. 간식으로 한 줌.'],
+ ['🍚','현미·고구마 (복합 탄수화물)','훈련 에너지원. 운동 2시간 전 든든하게.'],
+];
+const FOODS_BAD=[
+ ['🥤','탄산음료·주스·이온음료 남용','당이 많고 칼슘 흡수를 방해할 수 있어요. 운동 중엔 물이 기본.'],
+ ['🍬','사탕·과자·초콜릿','빈 칼로리. 식사 대신 먹으면 영양 불균형.'],
+ ['🍟','튀김·패스트푸드','포화지방·나트륨 과다, 체지방 증가.'],
+ ['🍜','라면·인스턴트','나트륨 과다, 단백질·칼슘 부족.'],
+ ['⚡','에너지드링크·카페인','수면을 방해해요. 성장호르몬은 깊은 잠에서 분비!'],
+ ['🌙','야식·늦은 간식','수면의 질 저하. 잠자기 2시간 전엔 그만.'],
+ ['🧂','짠 음식 (국물·가공육)','나트륨이 많으면 칼슘 배출이 늘 수 있어요.'],
+];
+const HABITS=[['milk','🥛','우유·유제품 2회 이상'],['pro','🍗','단백질 반찬 매끼'],['veg','🥦','채소 먹기'],['water','💧','물 1.5L 이상'],['nosug','🚫','탄산·과자 참기']];
+const SLOTS=[['b','🌅','아침'],['l','🍱','점심'],['s','🍌','간식'],['d','🌙','저녁']];
+
+function seed(){
+  const t=today();
+  const g=[];const base=[['-150',148.2,38.5],['-120',149.1,39.4],['-90',150.3,40.2],['-60',151.5,41.6],['-30',152.6,42.5],['0',153.4,43.3]];
+  base.forEach(([n,h,w],i)=>g.push({id:uid(),date:addDays(t,+n),h,w,j:[null,null,52,53,54,55][i]}));
+  const rid=[uid(),uid(),uid(),uid(),uid()];
+  const routine=[{id:rid[0],text:'아침 스트레칭 10분'},{id:rid[1],text:'줄넘기 300개'},{id:rid[2],text:'볼핸들링·드리블 15분'},{id:rid[3],text:'자유투 50개'},{id:rid[4],text:'밤 9시간 수면 (10시 취침)'}];
+  const log={};
+  for(let i=1;i<=6;i++){const d=addDays(t,-i);log[d]=i===4?[rid[0],rid[1]]:rid.slice()}
+  log[t]=[rid[0],rid[1]];
+  const sc=(time,title)=>({id:uid(),time,title});
+  return {
+    v:1,
+    profile:{name:'샘플 선수',sex:'M',birth:addDays(t,-365*12-40),team:'○○초 농구부',pos:'가드',father:176,mother:162},
+    goal:{target:170,date:addDays(t,365*3)},
+    goals:[
+      {id:uid(),text:'3개월 안에 +3cm 성장',done:false},
+      {id:uid(),text:'자유투 성공률 70% 달성',done:false},
+      {id:uid(),text:'양손 드리블 레이업 마스터',done:true},
+    ],
+    growth:g,
+    meals:{[t]:{slots:{b:{t:'계란, 밥, 우유 1잔',ok:true},l:{t:'급식 (생선구이)',ok:true},s:{t:'',ok:false},d:{t:'',ok:false}},habits:{milk:true,pro:true,veg:false,water:false,nosug:true}}},
+    routine,routineLog:log,
+    schedule:{
+      1:[sc('17:00','팀 정규 훈련')],2:[sc('16:30','개인 슈팅 · 볼핸들링')],
+      3:[sc('17:00','팀 정규 훈련')],4:[sc('19:00','스트레칭 · 회복 휴식')],
+      5:[sc('17:00','팀 정규 훈련'),sc('19:30','체력 (러닝·코어)')],6:[sc('10:00','연습경기 / 대회')],0:[sc('—','완전 휴식 · 가족시간')]
+    },
+    news:[]
+  };
+}
+async function seedNews(){
+  const items=[
+    ['[인터뷰] 유소년 농구 유망주 "슛이 즐거워요"','스포츠 신문 (예시)',-3,'https://example.com/news/1','첫 인터뷰 기사! 코치님 코멘트도 있음.'],
+    ['전국 초등 농구대회, ○○초 준우승','농구 전문지 (예시)',-14,'https://example.com/news/2','결승전 사진에 우리 아이가 나옴.'],
+  ];
+  items.forEach(([title,source,off,url,memo],i)=>S.news.push({id:MOCK?'demo'+i:uid(),title,source,url,date:addDays(today(),off),memo,n:1}));
+  save();
+}
+async function seedShots(){
+  for(const n of S.news.slice(0,2)){try{await shotPut(n.id,[await fakeShot(n.title,n.source)])}catch(e){console.warn('shot',e)}}
+}
+function fakeShot(title,src){
+  return new Promise(res=>{
+    const c=document.createElement('canvas');c.width=600;c.height=1500;const x=c.getContext('2d');
+    x.fillStyle='#fff';x.fillRect(0,0,600,1500);
+    x.fillStyle='#14213d';x.fillRect(0,0,600,64);x.fillStyle='#fff';x.font='bold 24px sans-serif';x.fillText(src,20,40);
+    x.fillStyle='#222';x.font='bold 30px sans-serif';
+    const words=[...title];let line='',y=120;
+    for(const ch of words){if(x.measureText(line+ch).width>540){x.fillText(line,30,y);y+=42;line=''}line+=ch}
+    x.fillText(line,30,y);y+=30;
+    x.fillStyle='#8a90a0';x.font='16px sans-serif';x.fillText('기사 화면 전체 캡처 예시',30,y+10);
+    const g=x.createLinearGradient(0,0,600,400);g.addColorStop(0,'#ff8a3d');g.addColorStop(1,'#14213d');
+    x.fillStyle=g;x.fillRect(30,y+40,540,330);x.font='110px sans-serif';x.fillText('🏀',260,y+240);
+    x.fillStyle='#d9dce5';
+    for(let i=0;i<24;i++){x.fillRect(30,y+410+i*36,i%5===4?300:540,12)}
+    c.toBlob(b=>res(b),'image/png');
+  });
+}
+
+/* ===== 계산 ===== */
+const sorted=()=>[...S.growth].sort((a,b)=>a.date.localeCompare(b.date));
+const latest=()=>sorted().slice(-1)[0];
+function ageText(b){if(!b)return'';const n=new Date(),d=new Date(b+'T00:00:00');let m=(n.getFullYear()-d.getFullYear())*12+n.getMonth()-d.getMonth();if(n.getDate()<d.getDate())m--;return `만 ${Math.floor(m/12)}세 ${m%12}개월`}
+const predicted=()=>{const f=num(S.profile.father),m=num(S.profile.mother);const sx=S.profile.sex==='F'?-13:13;return f&&m?Math.round((f+m+sx)/2*10)/10:null};
+function dayDone(d){const ids=S.routine.map(r=>r.id);if(!ids.length)return 0;const l=S.routineLog[d]||[];return ids.filter(i=>l.includes(i)).length/ids.length}
+function streak(){let d=today(),c=0;if(dayDone(d)<1)d=addDays(d,-1);while(dayDone(d)>=1){c++;d=addDays(d,-1)}return c}
+function mealScore(d){const m=S.meals[d];if(!m)return{a:0,b:SLOTS.length+HABITS.length};let a=0;SLOTS.forEach(([k])=>{if(m.slots?.[k]?.ok)a++});HABITS.forEach(([k])=>{if(m.habits?.[k])a++});return{a,b:SLOTS.length+HABITS.length}}
+function yearOpts(){const cy=new Date().getFullYear(),by=S.profile.birth?+S.profile.birth.slice(0,4):cy-18;let o='';for(let y=cy;y>=Math.min(by,cy);y--)o+=`<option value="${y}">${y}년</option>`;return o}
+function monthOpts(){const cm=new Date().getMonth()+1;let o='';for(let m=1;m<=12;m++)o+=`<option value="${m}" ${m===cm?'selected':''}>${m}월</option>`;return o}
+const dLabel=x=>{const [y,m,d]=x.date.split('-');return x.mo?`${y.slice(2)}.${m}`:`${y.slice(2)}.${m}.${d}`};
+const ensureMeal=d=>S.meals[d]||(S.meals[d]={slots:{},habits:{}});
+
+/* ===== 화면 ===== */
+let tab='home',sub={diet:'today',ex:'today'},q='';
+const TITLES={home:'농구성장노트',growth:'성장 기록',diet:'식단 · 키 성장 음식',ex:'운동 스케줄',news:'기사 스크랩'};
+
+function chart(){
+  const g=sorted();if(g.length<1)return '<div class="empty">아직 기록이 없어요</div>';
+  const W=340,H=190,L=34,R=14,T=16,B=26;
+  const target=num(S.goal.target);
+  const hs=g.map(x=>x.h);let lo=Math.min(...hs),hi=Math.max(...hs);
+  if(target&&target<hi+25){hi=Math.max(hi,target)}
+  lo=Math.floor(lo-2);hi=Math.ceil(hi+2);
+  const t0=new Date(g[0].date).getTime(),t1=new Date(g[g.length-1].date).getTime();
+  const span=t1-t0,step=Math.ceil(g.length/6),lab=x=>{const [y,m,d]=x.date.split('-');return (x.mo||span>200*864e5)?`${y.slice(2)}.${+m}`:`${+m}/${+d}`};
+  const X=d=>g.length===1?(L+W-R)/2:L+(new Date(d).getTime()-t0)/(t1-t0||1)*(W-L-R);
+  const Y=v=>T+(hi-v)/(hi-lo)*(H-T-B);
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="100%">`;
+  for(let i=0;i<=4;i++){const v=lo+(hi-lo)*i/4,y=Y(v);s+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="#eceef4"/><text x="${L-6}" y="${y+4}" font-size="10" fill="#8a90a0" text-anchor="end">${v.toFixed(0)}</text>`}
+  if(target&&target<=hi&&target>=lo)s+=`<line x1="${L}" x2="${W-R}" y1="${Y(target)}" y2="${Y(target)}" stroke="#1fa66a" stroke-dasharray="4 4"/><text x="${W-R}" y="${Y(target)-4}" font-size="10" fill="#1fa66a" text-anchor="end">목표 ${target}cm</text>`;
+  const pts=g.map(x=>`${X(x.date).toFixed(1)},${Y(x.h).toFixed(1)}`).join(' ');
+  s+=`<polyline points="${pts}" fill="none" stroke="#ff6a1a" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>`;
+  g.forEach((x,i)=>{const cx=X(x.date),cy=Y(x.h);s+=`<circle cx="${cx}" cy="${cy}" r="4.5" fill="#fff" stroke="#ff6a1a" stroke-width="2.5"/>`;
+    if(i===g.length-1||i%step===0)s+=`<text x="${cx}" y="${cy-9}" font-size="10.5" font-weight="700" fill="#14213d" text-anchor="middle">${x.h}</text>`;
+    if(i===g.length-1||i%step===0)s+=`<text x="${cx}" y="${H-8}" font-size="10" fill="#8a90a0" text-anchor="middle">${lab(x)}</text>`});
+  return s+'</svg>';
+}
+
+function goalCard(){
+  const l=latest(),g=sorted()[0],t=num(S.goal.target);
+  let pct=0,txt='';
+  if(l&&g&&t){pct=t>g.h?Math.max(0,Math.min(100,(l.h-g.h)/(t-g.h)*100)):100;txt=`${g.h}cm → 현재 ${l.h}cm → 목표 ${t}cm (${(t-l.h).toFixed(1)}cm 남음)`}
+  const pr=predicted();
+  return `<div class="card"><h2>🎯 나의 목표<span class="sp"></span><button class="more" data-act="editProfile">수정</button></h2>
+    ${t?`<div class="row between" style="margin-bottom:6px"><b>키 ${t}cm</b><span class="muted">${S.goal.date?S.goal.date.replace(/-/g,'.')+' 까지':''}</span></div><div class="bar"><i style="width:${pct}%"></i></div><div class="muted" style="margin-top:6px">${txt}</div>`:'<div class="muted">프로필에서 목표 키를 정해보세요</div>'}
+    ${pr?`<div class="note" style="margin-top:10px">👨‍👩‍👦 부모 키 기준 예상 성인 키 <b>약 ${pr}cm</b> (±8cm, 참고용)</div>`:''}
+    <div style="margin-top:8px">${S.goals.map(x=>`<div class="chk ${x.done?'done':''}" data-act="toggleGoal" data-id="${x.id}"><span class="box">${x.done?'✓':''}</span><span class="t">${esc(x.text)}</span><span class="x" data-act="editGoal" data-id="${x.id}" style="font-size:15px">✏️</span><span class="x" data-act="delGoal" data-id="${x.id}">✕</span></div>`).join('')}</div>
+    <form class="row" data-form="goal" style="margin-top:8px"><div class="fld" style="flex:1"><input name="text" placeholder="목표 추가 (예: 3점슛 40%)" required></div><button class="btn sm">추가</button></form></div>`;
+}
+
+const views={
+home(){
+  const l=latest(),p=S.profile,t=today(),dn=dayDone(t),ms=mealScore(t),dow=new Date().getDay();
+  const prev=sorted().slice(-2)[0];
+  const todaySch=S.schedule[dow]||[];
+  return `<div class="card hero"><div class="nm">${esc(p.name)} <span style="font-size:13px;font-weight:500">· ${esc(p.pos||'')}</span></div>
+    <div class="sub">${ageText(p.birth)} · ${esc(p.team||'')}</div>
+    <div class="stats"><div class="stat"><b>${l?l.h:'-'}</b><span>키(cm)</span></div><div class="stat"><b>${l?l.w??'-':'-'}</b><span>몸무게(kg)</span></div><div class="stat"><b>${l&&prev&&l!==prev?'+'+(l.h-prev.h).toFixed(1):'-'}</b><span>지난 기록 대비</span></div></div></div>
+    <div class="card"><h2>🔥 오늘 한눈에</h2>
+      <div class="row" style="gap:14px"><div class="ring" style="--p:${Math.round(dn*100)}"><b>${Math.round(dn*100)}%</b></div>
+      <div style="flex:1"><div><b>운동 루틴</b> ${S.routine.filter(r=>(S.routineLog[t]||[]).includes(r.id)).length}/${S.routine.length}</div><div class="muted">🔥 ${streak()}일 연속 루틴 완료</div>
+      <div style="margin-top:4px"><b>식단·습관</b> ${ms.a}/${ms.b}</div></div></div>
+      <div style="margin-top:12px;border-top:1px solid var(--line);padding-top:10px"><div class="muted" style="margin-bottom:4px">오늘(${DOW[dow]}) 일정</div>
+      ${todaySch.length?todaySch.map(s=>`<div class="sch"><span class="tm">${esc(s.time)}</span><span class="tt">${esc(s.title)}</span></div>`).join(''):'<div class="muted">일정 없음</div>'}</div></div>
+    ${goalCard()}
+    <div class="card"><h2>📰 최근 기사<span class="sp"></span><button class="more" data-act="tab" data-v="news">전체보기</button></h2>
+      ${S.news.length?[...S.news].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,2).map(newsItem).join(''):'<div class="empty">스크랩한 기사가 없어요</div>'}</div>`;
+},
+growth(){
+  const g=sorted(),l=g[g.length-1];
+  return `<div class="card"><h2>📈 키 변화</h2>${chart()}</div>
+  <div class="card"><h2>➕ 측정 기록 추가</h2>
+    <form class="f" data-form="growth"><div class="fld"><label>측정 시기 (과거 기록도 연·월만 골라 입력)</label><div class="g3"><select name="y" aria-label="연도">${yearOpts()}</select><select name="m" aria-label="월">${monthOpts()}</select><input type="number" name="dd" min="1" max="31" inputmode="numeric" placeholder="일(선택)" aria-label="일"></div></div>
+    <div class="fld"><label>키 (cm)</label><input type="number" step="0.1" name="h" placeholder="${l?l.h:'153.4'}" required></div>
+    <div class="g2"><div class="fld"><label>몸무게 (kg)</label><input type="number" step="0.1" name="w" placeholder="선택"></div>
+    <div class="fld"><label>제자리 점프 (cm)</label><input type="number" step="1" name="j" placeholder="선택"></div></div>
+    <button class="btn block">기록 저장</button></form></div>
+  <div class="card"><h2>🗂 기록 목록</h2>
+   ${g.length?`<table class="tbl"><tr><th>날짜</th><th>키</th><th>몸무게</th><th>점프</th><th></th></tr>${[...g].reverse().map(x=>{const i=g.indexOf(x),d=i>0?x.h-g[i-1].h:null;return `<tr><td>${dLabel(x)}</td><td><b>${x.h}</b> ${d!==null?`<span class="delta">${d>=0?'+':''}${d.toFixed(1)}</span>`:''}</td><td>${x.w??'-'}</td><td>${x.j??'-'}</td><td><span class="row" style="justify-content:flex-end;gap:0"><span class="x" data-act="editGrowth" data-id="${x.id}" style="font-size:14px">✏️</span><span class="x" data-act="delGrowth" data-id="${x.id}">✕</span></span></td></tr>`}).join('')}</table>`:'<div class="empty">기록이 없어요</div>'}
+  </div>
+  <div class="note">💡 같은 시간대(아침 기상 후)에, 같은 자세로 재면 비교가 정확해요. 한 달에 1~2회 정도 기록을 추천해요.</div>`;
+},
+diet(){
+  const seg=`<div class="seg"><button data-act="sub" data-k="diet" data-v="today" class="${sub.diet==='today'?'on':''}">오늘 식단</button><button data-act="sub" data-k="diet" data-v="guide" class="${sub.diet==='guide'?'on':''}">음식 가이드</button></div>`;
+  if(sub.diet==='guide')return seg+`
+    <div class="card good"><h2>✅ 키 성장에 좋은 음식</h2>${FOODS_GOOD.map(f=>`<div class="food"><span class="em">${f[0]}</span><div><b>${f[1]}</b><span class="muted">${f[2]}</span></div></div>`).join('')}</div>
+    <div class="card bad"><h2>⚠️ 줄이면 좋은 음식</h2>${FOODS_BAD.map(f=>`<div class="food"><span class="em">${f[0]}</span><div><b>${f[1]}</b><span class="muted">${f[2]}</span></div></div>`).join('')}</div>
+    <div class="note">💡 키는 유전 + 영양 + <b>수면</b> + 운동이 함께 만들어요. 성장호르몬은 깊게 잘 때 가장 많이 나와서, 초등~중학생은 9~10시간 수면이 중요해요. 성장이 걱정되면 소아청소년과에서 성장판 검사를 받아보세요.</div>`;
+  const t=today(),m=S.meals[t]||{slots:{},habits:{}},sc=mealScore(t);
+  return seg+`<div class="card"><div class="row between"><h2 style="margin:0">🍽 오늘 (${md(t)} ${DOW[new Date().getDay()]})</h2><span class="pill">${sc.a}/${sc.b}</span></div>
+    <div class="bar" style="margin:10px 0 4px"><i style="width:${sc.a/sc.b*100}%"></i></div>
+    ${SLOTS.map(([k,e,n])=>{const s=m.slots?.[k]||{};return `<div class="meal ${s.ok?'done':''}"><div class="hd"><span>${e} ${n}</span><button class="chkbtn" data-act="mealOk" data-k="${k}">${s.ok?'✓ 먹었어요':'먹었나요?'}</button></div><input data-meal="${k}" value="${esc(s.t||'')}" placeholder="무엇을 먹었나요?"></div>`}).join('')}</div>
+    <div class="card"><h2>💪 오늘의 성장 습관</h2>${HABITS.map(([k,e,n])=>`<div class="chk ${m.habits?.[k]?'done':''}" data-act="habit" data-k="${k}"><span class="box">${m.habits?.[k]?'✓':''}</span><span class="t">${e} ${n}</span></div>`).join('')}</div>
+    <div class="card"><h2>👍 오늘 추천 메뉴</h2><div class="chips">${['계란','우유','멸치볶음','두부','연어구이','브로콜리','바나나','견과류'].map(x=>`<span class="chip">${x}</span>`).join('')}</div>
+    <div class="muted" style="margin-top:8px">훈련 후 30분 안에 <b>단백질 + 탄수화물</b> 간식(우유+바나나 등)이 회복에 좋아요.</div></div>`;
+},
+ex(){
+  const seg=`<div class="seg"><button data-act="sub" data-k="ex" data-v="today" class="${sub.ex==='today'?'on':''}">오늘 루틴</button><button data-act="sub" data-k="ex" data-v="week" class="${sub.ex==='week'?'on':''}">주간 스케줄</button></div>`;
+  const t=today(),dow=new Date().getDay();
+  if(sub.ex==='week')return seg+ORDER.map(d=>`<div class="card"><div class="dayhd ${d===dow?'today':''}"><span class="d">${DOW[d]}</span>${DOW[d]}요일${d===dow?' <span class="pill">오늘</span>':''}</div>
+    ${(S.schedule[d]||[]).map(s=>`<div class="sch"><span class="tm">${esc(s.time)}</span><span class="tt">${esc(s.title)}</span><span class="x" data-act="editSch" data-d="${d}" data-id="${s.id}" style="font-size:15px">✏️</span><span class="x" data-act="delSch" data-d="${d}" data-id="${s.id}">✕</span></div>`).join('')||'<div class="muted" style="padding:6px 0">일정 없음</div>'}</div>`).join('')+
+    `<div class="card"><h2>➕ 일정 추가</h2><form class="f" data-form="sch"><div class="g3"><div class="fld"><label>요일</label><select name="d">${ORDER.map(d=>`<option value="${d}" ${d===dow?'selected':''}>${DOW[d]}</option>`).join('')}</select></div><div class="fld" style="grid-column:span 2"><label>시간</label><input name="time" placeholder="17:00"></div></div><div class="fld"><label>내용</label><input name="title" placeholder="예: 팀 훈련, 슈팅 연습" required></div><button class="btn block">추가</button></form></div>`;
+  const l=S.routineLog[t]||[];
+  const days=[6,5,4,3,2,1,0].map(i=>addDays(t,-i));
+  return seg+`<div class="card"><div class="row" style="gap:14px"><div class="ring" style="--p:${Math.round(dayDone(t)*100)}"><b>${Math.round(dayDone(t)*100)}%</b></div><div><b style="font-size:16px">🔥 ${streak()}일 연속!</b><div class="muted">매일 루틴을 모두 채우면 이어져요</div></div></div>
+    <div class="dots" style="margin-top:14px">${days.map(d=>{const v=dayDone(d);return `<div class="dot ${v>=1?'full':v>0?'half':''} ${d===t?'today':''}"><i></i>${DOW[new Date(d+'T00:00:00').getDay()]}</div>`}).join('')}</div></div>
+    <div class="card"><h2>✅ 매일 루틴</h2>${S.routine.map(r=>`<div class="chk ${l.includes(r.id)?'done':''}" data-act="routine" data-id="${r.id}"><span class="box">${l.includes(r.id)?'✓':''}</span><span class="t">${esc(r.text)}</span><span class="x" data-act="editRoutine" data-id="${r.id}" style="font-size:15px">✏️</span><span class="x" data-act="delRoutine" data-id="${r.id}">✕</span></div>`).join('')||'<div class="empty">루틴을 추가해보세요</div>'}
+    <form class="row" data-form="routine" style="margin-top:8px"><div class="fld" style="flex:1"><input name="text" placeholder="루틴 추가 (예: 플랭크 1분)" required></div><button class="btn sm">추가</button></form></div>
+    <div class="card"><h2>📅 오늘(${DOW[dow]}) 일정</h2>${(S.schedule[dow]||[]).map(s=>`<div class="sch"><span class="tm">${esc(s.time)}</span><span class="tt">${esc(s.title)}</span></div>`).join('')||'<div class="muted">일정 없음</div>'}</div>`;
+},
+news(){
+  const list=[...S.news].filter(n=>!q||(n.title+n.source+n.memo).toLowerCase().includes(q.toLowerCase())).sort((a,b)=>b.date.localeCompare(a.date));
+  return `<input class="search" id="q" placeholder="🔍 기사 검색 (제목·언론사·메모)" value="${esc(q)}">
+    ${list.map(newsItem).join('')||`<div class="empty">📰<br>${S.news.length?'검색 결과가 없어요':'인터뷰·기사를 스크랩해보세요<br>아래 ＋ 버튼을 눌러주세요'}</div>`}
+    <div class="note" style="margin-bottom:84px">📸 기사 화면 <b>전체가 이미지로 저장</b>되어, 나중에 기사가 삭제돼도 볼 수 있어요. 링크도 함께 보관돼요.</div>`;
+}};
+
+function newsItem(n){
+  return `<button class="news" data-act="openScrap" data-id="${n.id}"><div class="th">📰<img data-shot="${n.id}" alt="" hidden></div><div class="bd"><div class="tt">${esc(n.title)}</div><div class="muted" style="margin-top:3px">${esc(n.source||'')} · ${n.date.replace(/-/g,'.')}</div>${n.memo?`<div class="mm">${esc(n.memo)}</div>`:''}<div style="margin-top:5px"><span class="pill">🖼 캡처 ${n.n||0}장</span> ${n.url?'<span class="pill" style="background:#e8f0ff;color:var(--blue)">🔗 링크</span>':''}</div></div></button>`;
+}
+
+function render(keepScroll){
+  const v=$('#view'),y=v.scrollTop;
+  v.innerHTML=views[tab]();
+  $('#ttl').textContent=TITLES[tab];
+  $('#whoN').textContent=S?S.profile.name:'선수';
+  $$('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===tab));
+  $('#fab').hidden=tab!=='news';
+  v.scrollTop=keepScroll?y:0;
+  $$('img[data-shot]',v).forEach(async im=>{const u=(await shotUrls(im.dataset.shot))[0];if(u){im.src=u;im.hidden=false}});
+}
+
+/* ===== 시트(팝업) ===== */
+let locked=false;
+function openSheet(html,full,lock){
+  const wasHidden=$('#sheet').hidden;
+  locked=!!lock;
+  $('#panel').className='panel'+(full?' full':'');
+  $('#panel').innerHTML='<div class="sheethd"><div class="grab"></div>'+(lock?'':'<button type="button" class="closex" data-act="closeSheet" aria-label="닫기">✕</button>')+'</div>'+html;
+  $('#sheet').hidden=false;$('#panel').scrollTop=0;
+  if(wasHidden&&!lock){try{history.pushState({sheet:1},'')}catch(e){}}
+}
+function closeSheet(fromPop){
+  if($('#sheet').hidden||locked)return;
+  $('#sheet').hidden=true;$('#panel').innerHTML='';
+  if(fromPop!==true){try{if(history.state&&history.state.sheet)history.back()}catch(e){}}
+}
+window.addEventListener('popstate',()=>{if(!$('#sheet').hidden&&!locked)closeSheet(true)});
+let tt;function toast(m){$$('.toast').forEach(e=>e.remove());const e=document.createElement('div');e.className='toast';e.textContent=m;$('#app').appendChild(e);clearTimeout(tt);tt=setTimeout(()=>e.remove(),2400)}
+
+function registerSheet(first){
+  const cy=new Date().getFullYear();
+  openSheet(`<h3>🏀 선수 등록</h3>
+   <div class="hi">${first?'우리 아이 정보를 등록하면 성장 기록·식단·운동·기사 스크랩을 관리할 수 있어요. 한 기기에 여러 선수도 등록할 수 있어요.':'새 선수를 등록해요. 기록은 선수별로 따로 저장돼요.'}</div>
+   <form class="f" data-form="register">
+    <div class="g2"><div class="fld"><label>이름 *</label><input name="name" required maxlength="20" placeholder="선수 이름"></div>
+    <div class="fld"><label>성별</label><select name="sex"><option value="M">남</option><option value="F">여</option></select></div></div>
+    <div class="fld"><label>생년월일 *</label><input type="date" name="birth" required value="${cy-12}-01-01" max="${today()}"></div>
+    <div class="g2"><div class="fld"><label>소속 팀</label><input name="team" placeholder="예: ○○초 농구부"></div><div class="fld"><label>포지션</label><input name="pos" placeholder="예: 가드"></div></div>
+    <div class="g2"><div class="fld"><label>현재 키 (cm)</label><input type="number" step="0.1" name="h" inputmode="decimal"></div><div class="fld"><label>몸무게 (kg)</label><input type="number" step="0.1" name="w" inputmode="decimal"></div></div>
+    <div class="g2"><div class="fld"><label>아빠 키 (cm)</label><input type="number" name="father" inputmode="numeric"></div><div class="fld"><label>엄마 키 (cm)</label><input type="number" name="mother" inputmode="numeric"></div></div>
+    <div class="fld"><label>목표 키 (cm)</label><input type="number" step="0.1" name="target" inputmode="decimal"></div>
+    <button class="btn block">✅ 등록하고 시작</button>
+    ${first?'<button type="button" class="btn sec block" data-act="sample">샘플로 먼저 체험해보기</button>':''}
+    <div class="note">아빠·엄마 키를 넣으면 예상 성인 키(참고용)가 계산돼요. 나중에 프로필에서 바꿀 수 있어요.</div>
+   </form>`,true,first);
+}
+function showRegister(first){registerSheet(first)}
+function playersSheet(){
+  const rows=playerList().map(({id,p})=>{const pr=p.profile,cur=id===ALL.cur;
+    return `<button class="prow ${cur?'on':''}" data-act="switchPlayer" data-id="${id}"><span class="av" style="background:${avColor(id)}">${esc((pr.name||'?').slice(0,1))}</span><span class="nm"><b>${esc(pr.name)}</b><span class="muted">${esc([pr.team,pr.pos,ageText(pr.birth)].filter(Boolean).join(' · '))}</span></span>${cur?'<span class="pill">선택됨</span>':''}</button>`}).join('');
+  openSheet(`<h3>👥 선수 선택</h3>${rows}
+   <button class="btn block" data-act="addPlayer" style="margin-top:4px">＋ 선수 추가 등록</button>
+   <div class="btns" style="margin-top:10px"><button class="btn sec sm" data-act="editProfile">✏️ 현재 선수 프로필·목표 수정</button></div>`);
+}
+
+function profileSheet(){
+  const p=S.profile,g=S.goal;
+  openSheet(`<h3>👤 프로필 · 목표</h3><form class="f" data-form="profile">
+   <div class="g2"><div class="fld"><label>이름</label><input name="name" value="${esc(p.name)}" required></div><div class="fld"><label>생년월일</label><input type="date" name="birth" value="${p.birth||''}"></div></div>
+   <div class="g2"><div class="fld"><label>소속 팀</label><input name="team" value="${esc(p.team||'')}"></div><div class="fld"><label>포지션</label><input name="pos" value="${esc(p.pos||'')}"></div></div>
+   <div class="fld"><label>성별</label><select name="sex"><option value="M" ${p.sex!=='F'?'selected':''}>남</option><option value="F" ${p.sex==='F'?'selected':''}>여</option></select></div>
+   <div class="g2"><div class="fld"><label>아빠 키 (cm)</label><input type="number" name="father" value="${p.father??''}"></div><div class="fld"><label>엄마 키 (cm)</label><input type="number" name="mother" value="${p.mother??''}"></div></div>
+   <div class="g2"><div class="fld"><label>목표 키 (cm)</label><input type="number" step="0.1" name="target" value="${g.target??''}"></div><div class="fld"><label>목표 날짜</label><input type="date" name="gdate" value="${g.date||''}"></div></div>
+   <button class="btn block">저장</button>
+   <div class="btns" style="margin-top:6px"><button type="button" class="btn sec sm" data-act="backup">💾 전체 백업(파일)</button><button type="button" class="btn sec sm" data-act="importBackup">📥 백업 불러오기</button></div>
+   <div class="btns" style="margin-top:2px"><button type="button" class="btn danger sm" data-act="delPlayer">🗑 이 선수 삭제</button></div>
+   <div class="note">기사 캡처 이미지는 이 기기 안에 저장돼요. 백업 파일에는 모든 선수의 텍스트 기록만 포함됩니다(캡처 이미지 제외).</div></form>`);
+}
+
+function editGoalSheet(id){
+  const g=S.goals.find(x=>x.id===id);if(!g)return;
+  openSheet(`<h3>✏️ 목표 수정</h3><form class="f" data-form="editGoal" data-id="${id}">
+   <div class="fld"><label>목표</label><input name="text" value="${esc(g.text)}" required></div>
+   <button class="btn block">저장</button></form>`,true);
+}
+function editRoutineSheet(id){
+  const r=S.routine.find(x=>x.id===id);if(!r)return;
+  openSheet(`<h3>✏️ 루틴 수정</h3><form class="f" data-form="editRoutine" data-id="${id}">
+   <div class="fld"><label>루틴 내용</label><input name="text" value="${esc(r.text)}" required></div>
+   <button class="btn block">저장</button></form>`,true);
+}
+function editSchSheet(d,id){
+  const s=(S.schedule[d]||[]).find(x=>x.id===id);if(!s)return;
+  openSheet(`<h3>✏️ 일정 수정 (${DOW[d]}요일)</h3><form class="f" data-form="editSch" data-d="${d}" data-id="${id}">
+   <div class="fld"><label>시간</label><input name="time" value="${esc(s.time)}" placeholder="17:00"></div>
+   <div class="fld"><label>내용</label><input name="title" value="${esc(s.title)}" required></div>
+   <button class="btn block">저장</button></form>`,true);
+}
+function editGrowthSheet(id){
+  const x=S.growth.find(v=>v.id===id);if(!x)return;
+  openSheet(`<h3>✏️ 성장 기록 수정</h3><form class="f" data-form="editGrowth" data-id="${id}">
+   <div class="fld"><label>날짜</label><input type="date" name="date" value="${x.date}" required></div>
+   <div class="fld"><label>키 (cm)</label><input type="number" step="0.1" name="h" value="${x.h}" required></div>
+   <div class="g2"><div class="fld"><label>몸무게 (kg)</label><input type="number" step="0.1" name="w" value="${x.w??''}"></div><div class="fld"><label>제자리 점프 (cm)</label><input type="number" step="1" name="j" value="${x.j??''}"></div></div>
+   <button class="btn block">저장</button></form>`,true);
+}
+
+async function scrapSheet(id){
+  const n=S.news.find(x=>x.id===id);if(!n)return;
+  const urls=await shotUrls(id);
+  openSheet(`<h3 style="line-height:1.35">${esc(n.title)}</h3><div class="muted" style="margin:-6px 0 10px">${esc(n.source||'')} · ${n.date.replace(/-/g,'.')}</div>
+   ${n.memo?`<div class="note" style="background:#fff;margin-bottom:10px">📝 ${esc(n.memo)}</div>`:''}
+   <div class="btns" style="margin-bottom:12px">${n.url?`<a class="btn sm" style="text-decoration:none" href="${esc(n.url)}" target="_blank" rel="noopener">🔗 원문 열기</a><button class="btn sec sm" data-act="copyLink" data-id="${id}">링크 복사</button>`:''}<button class="btn sec sm" data-act="addShots" data-id="${id}">🖼 캡처 추가</button><button class="btn danger sm" data-act="delScrap" data-id="${id}">삭제</button></div>
+   ${urls.length?urls.map(u=>`<img class="shot" src="${u}" alt="기사 캡처">`).join(''):'<div class="empty">저장된 캡처가 없어요.<br>“캡처 추가”로 스크린샷을 넣어주세요</div>'}`,true);
+}
+
+function newSheet(){
+  pending=[];
+  openSheet(`<h3>📰 기사 스크랩</h3>
+   <div class="fld"><label>🔍 기사 검색</label><input id="sKw" placeholder="선수 이름·팀명 등 검색어" inputmode="search"></div>
+   <div class="btns" style="margin-bottom:2px">${ALL.sources.map(s=>`<button type="button" class="btn sec sm" data-act="siteSearch" data-id="${s.id}">🔎 ${esc(s.name)}</button>`).join('')||'<span class="muted">등록된 검색 사이트가 없어요</span>'}</div>
+   <div style="margin:2px 0 12px"><button type="button" data-act="manageSources" style="font-size:12px;color:var(--mute);text-decoration:underline">⚙ 검색 사이트 관리</button></div>
+   <div class="note" style="margin-bottom:14px">검색어를 넣고 사이트를 누르면 새 탭에서 그 사이트의 검색결과(제목+본문)가 열려요. 원하는 기사를 찾으면 <b>링크를 복사</b>해서 아래 URL 칸에 붙여넣고 자동 캡처하세요.</div>
+   <form class="f" data-form="scrap">
+   <div class="fld"><label>기사 링크 (URL)</label><input type="url" name="url" id="sUrl" placeholder="https://..." inputmode="url"></div>
+   <button type="button" class="btn line block" id="autoCap" data-act="autoCap">📸 링크로 기사 전체 자동 캡처</button>
+   <div class="fld"><label>제목</label><input name="title" id="sTitle" placeholder="자동 입력되거나 직접 입력" required></div>
+   <div class="g2"><div class="fld"><label>언론사</label><input name="source" id="sSrc"></div><div class="fld"><label>기사 날짜</label><input type="date" name="date" value="${today()}"></div></div>
+   <div class="fld"><label>메모</label><textarea name="memo" rows="2" placeholder="코치님 코멘트, 대회명 등"></textarea></div>
+   <div class="fld"><label>캡처 이미지 <span id="capCnt" class="pill">0장</span></label><button type="button" class="btn sec block" data-act="pickShots">🖼 갤러리에서 스크린샷 선택 (긴 캡처 OK)</button></div>
+   <div id="capPrev" class="btns"></div>
+   <button class="btn block">💾 스크랩 저장</button>
+   <div class="note">자동 캡처는 일부 사이트(로그인 필요·차단)는 실패할 수 있어요. 그땐 폰에서 <b>스크롤 캡처(긴 스크린샷)</b> 후 갤러리에서 선택하세요.</div></form>`,true);
+}
+
+function manageSourcesSheet(){
+  openSheet(`<h3>⚙ 기사 검색 사이트 관리</h3>
+   <div class="note" style="margin-bottom:12px">점프볼·바스켓코리아·루키 외에 새로 생기는 사이트도 직접 추가할 수 있어요. 그 사이트의 검색결과 페이지 URL을 넣고, 검색어가 들어가는 자리를 <b>{q}</b>로 바꿔 적어주세요.</div>
+   ${ALL.sources.length?ALL.sources.map(s=>`<div class="row between" style="padding:9px 0;border-bottom:1px solid var(--line)"><div style="min-width:0;flex:1"><b>${esc(s.name)}</b><div class="muted" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(s.tpl)}</div></div><span class="x" data-act="delSource" data-id="${s.id}">✕</span></div>`).join(''):'<div class="empty">등록된 사이트가 없어요</div>'}
+   <form class="f" data-form="source" style="margin-top:16px">
+    <div class="fld"><label>사이트 이름</label><input name="name" placeholder="예: 스포츠서울" required maxlength="20"></div>
+    <div class="fld"><label>검색 URL (검색어 자리에 {q})</label><input name="tpl" placeholder="https://example.com/search?q={q}" required></div>
+    <button class="btn block">➕ 사이트 추가</button>
+   </form>
+   <button type="button" class="btn sec block" style="margin-top:10px" data-act="newScrap">← 기사 스크랩으로 돌아가기</button>`,true);
+}
+
+/* ===== 캡처 ===== */
+let pending=[];
+function refreshPending(){const c=$('#capCnt');if(!c)return;c.textContent=pending.length+'장';$('#capPrev').innerHTML=pending.map(b=>`<img src="${URL.createObjectURL(b)}" style="width:64px;height:84px;object-fit:cover;object-position:top;border-radius:8px;border:1px solid var(--line)">`).join('')}
+async function autoCapture(){
+  const url=$('#sUrl').value.trim();if(!/^https?:\/\//i.test(url))return toast('http(s):// 로 시작하는 링크를 입력해주세요');
+  const btn=$('#autoCap');btn.disabled=true;btn.innerHTML='<span class="spin" style="border-color:var(--o);border-right-color:transparent"></span>기사 캡처 중... (10~20초)';
+  const base={url,'viewport.width':'430','viewport.height':'900','viewport.isMobile':'true',screenshot:'true',fullPage:'true',waitForTimeout:'1500'};
+  try{
+    const img=await fetch('https://api.microlink.io/?'+new URLSearchParams({...base,meta:'false',embed:'screenshot.url'}));
+    const ct=img.headers.get('content-type')||'';
+    if(!img.ok||!ct.startsWith('image/'))throw new Error('capture');
+    pending.push(await img.blob());refreshPending();
+    try{const m=await(await fetch('https://api.microlink.io/?'+new URLSearchParams({url,meta:'true'}))).json();
+      if(m.data){if(!$('#sTitle').value)$('#sTitle').value=m.data.title||'';if(!$('#sSrc').value)$('#sSrc').value=m.data.publisher||'';if(m.data.date)$('input[name=date]').value=m.data.date.slice(0,10)}}catch(e){}
+    toast('✅ 기사 전체를 캡처했어요');
+  }catch(e){toast('자동 캡처에 실패했어요. 스크린샷을 직접 선택해주세요')}
+  btn.disabled=false;btn.textContent='📸 링크로 기사 전체 자동 캡처';
+}
+let fileMode=null;
+function pickFiles(mode){fileMode=mode;$('#file').value='';$('#file').click()}
+$('#file').addEventListener('change',async e=>{
+  const files=[...e.target.files];if(!files.length)return;
+  if(fileMode==='new'){pending.push(...files);refreshPending()}
+  else{const id=fileMode.id,cur=await shotGet(id);const all=[...cur,...files];await shotPut(id,all);dropUrls(id);const n=S.news.find(x=>x.id===id);n.n=all.length;save();scrapSheet(id);render(true);toast('캡처를 추가했어요')}
+});
+
+$('#jfile').addEventListener('change',async e=>{
+  const f=e.target.files[0];if(!f)return;
+  try{
+    const j=JSON.parse(await f.text());
+    const list=j&&j.players?Object.values(j.players):(j&&j.profile?[j]:[]);
+    if(!list.length)throw new Error('empty');
+    let last=null;for(const st of list){if(st&&st.profile&&Array.isArray(st.growth))last=newPlayer(st)}
+    if(!last)throw new Error('invalid');
+    closeSheet();tab='home';render();toast('📥 '+list.length+'명의 기록을 불러왔어요 (캡처 이미지는 제외)');
+  }catch(err){toast('백업 파일을 읽을 수 없어요')}
+});
+
+/* ===== 이벤트 ===== */
+document.addEventListener('click',async e=>{
+  const el=e.target.closest('[data-act]');if(!el)return;
+  const a=el.dataset.act,id=el.dataset.id;
+  switch(a){
+   case'tab':tab=el.dataset.v;render();break;
+   case'sub':sub[el.dataset.k]=el.dataset.v;render();break;
+   case'closeSheet':closeSheet();break;
+   case'editProfile':profileSheet();break;
+   case'toggleGoal':{const g=S.goals.find(x=>x.id===id);g.done=!g.done;save();render(true);break}
+   case'editGoal':editGoalSheet(id);break;
+   case'delGoal':if(!confirm('이 목표를 삭제할까요?'))break;S.goals=S.goals.filter(x=>x.id!==id);save();render(true);break;
+   case'editGrowth':editGrowthSheet(id);break;
+   case'delGrowth':if(confirm('이 기록을 삭제할까요?')){S.growth=S.growth.filter(x=>x.id!==id);save();render(true)}break;
+   case'mealOk':{const m=ensureMeal(today());m.slots[el.dataset.k]??={t:'',ok:false};m.slots[el.dataset.k].ok=!m.slots[el.dataset.k].ok;save();render(true);break}
+   case'habit':{const m=ensureMeal(today());m.habits[el.dataset.k]=!m.habits[el.dataset.k];save();render(true);break}
+   case'routine':{const t=today(),l=S.routineLog[t]||(S.routineLog[t]=[]);const i=l.indexOf(id);i>=0?l.splice(i,1):l.push(id);save();render(true);
+     if(dayDone(t)>=1)toast('🔥 오늘 루틴 완료! '+streak()+'일 연속');break}
+   case'editRoutine':editRoutineSheet(id);break;
+   case'delRoutine':if(!confirm('이 루틴을 삭제할까요?'))break;S.routine=S.routine.filter(x=>x.id!==id);save();render(true);break;
+   case'editSch':editSchSheet(el.dataset.d,id);break;
+   case'delSch':if(!confirm('이 일정을 삭제할까요?'))break;S.schedule[el.dataset.d]=S.schedule[el.dataset.d].filter(x=>x.id!==id);save();render(true);break;
+   case'newScrap':newSheet();break;
+   case'siteSearch':{const kw=$('#sKw').value.trim();if(!kw){toast('검색어를 입력해주세요');break}
+     const s=ALL.sources.find(x=>x.id===id);if(!s)break;
+     openExternal(s.tpl.replace('{q}',encodeURIComponent(kw)));break}
+   case'manageSources':manageSourcesSheet();break;
+   case'delSource':ALL.sources=ALL.sources.filter(x=>x.id!==id);save();manageSourcesSheet();break;
+   case'autoCap':autoCapture();break;
+   case'pickShots':pickFiles('new');break;
+   case'addShots':pickFiles({id});break;
+   case'openScrap':scrapSheet(id);break;
+   case'copyLink':{const n=S.news.find(x=>x.id===id);try{await navigator.clipboard.writeText(n.url);toast('링크를 복사했어요')}catch(_){toast(n.url)}break}
+   case'delScrap':if(confirm('이 기사 스크랩을 삭제할까요?')){S.news=S.news.filter(x=>x.id!==id);await shotDel(id);dropUrls(id);save();closeSheet();render(true)}break;
+   case'backup':{const name=`농구성장노트_${today()}.json`,b=new Blob([JSON.stringify(ALL,null,1)],{type:'application/json'}),file=new File([b],name,{type:'application/json'});
+     try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name});break}}catch(err){if(err.name==='AbortError')break}
+     const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();a.remove();toast('백업 파일을 저장했어요');break}
+   case'players':playersSheet();break;
+   case'addPlayer':registerSheet(false);break;
+   case'switchPlayer':{if(id!==ALL.cur){save();ALL.cur=id;S=ALL.players[id];q='';tab='home';sub={diet:'today',ex:'today'};save()}closeSheet();render();break}
+   case'sample':{const st=seed();newPlayer(st);locked=false;closeSheet();tab='home';await seedNews();render();await seedShots();render(true);break}
+   case'delPlayer':{
+     if(!confirm(S.profile.name+' 선수의 모든 기록(키·식단·루틴·기사 캡처)을 삭제할까요? 되돌릴 수 없어요.'))break;
+     for(const n of S.news){await shotDel(n.id);dropUrls(n.id)}
+     delete ALL.players[ALL.cur];const rest=Object.keys(ALL.players);ALL.cur=rest[0]||null;S=ALL.cur?ALL.players[ALL.cur]:null;save();
+     closeSheet();
+     if(!S){showRegister(true)}else{tab='home';render();toast('선수를 삭제했어요')}
+     break}
+   case'importBackup':$('#jfile').value='';$('#jfile').click();break;
+  }
+});
+document.addEventListener('submit',async e=>{
+  const f=e.target.closest('form[data-form]');if(!f)return;e.preventDefault();
+  const d=Object.fromEntries(new FormData(f));
+  switch(f.dataset.form){
+   case'goal':S.goals.push({id:uid(),text:d.text.trim(),done:false});break;
+   case'editGoal':{const g=S.goals.find(x=>x.id===f.dataset.id);if(g)g.text=d.text.trim();closeSheet();break}
+   case'routine':S.routine.push({id:uid(),text:d.text.trim()});break;
+   case'editRoutine':{const r=S.routine.find(x=>x.id===f.dataset.id);if(r)r.text=d.text.trim();closeSheet();break}
+   case'sch':{const arr=S.schedule[d.d]||(S.schedule[d.d]=[]);arr.push({id:uid(),time:d.time||'—',title:d.title.trim()});arr.sort((a,b)=>a.time.localeCompare(b.time));break}
+   case'editSch':{const arr=S.schedule[f.dataset.d]||[];const s=arr.find(x=>x.id===f.dataset.id);if(s){s.time=d.time||'—';s.title=d.title.trim();arr.sort((a,b)=>a.time.localeCompare(b.time))}closeSheet();break}
+   case'editGrowth':{const x=S.growth.find(v=>v.id===f.dataset.id);if(x){x.date=d.date;x.mo=false;x.h=num(d.h);x.w=num(d.w);x.j=num(d.j)}closeSheet();toast('📏 기록을 수정했어요');break}
+   case'register':{const t=seed(),h=num(d.h);
+     const st={v:1,profile:{name:d.name.trim(),sex:d.sex,birth:d.birth,team:d.team.trim(),pos:d.pos.trim(),father:num(d.father),mother:num(d.mother)},goal:{target:num(d.target),date:''},goals:[],growth:h?[{id:uid(),date:today(),mo:false,h,w:num(d.w),j:null}]:[],meals:{},routine:t.routine,routineLog:{},schedule:t.schedule,news:[]};
+     newPlayer(st);locked=false;closeSheet();tab='home';toast('🏀 '+st.profile.name+' 선수를 등록했어요');break}
+   case'growth':{const y=+d.y,m=+d.m,dim=new Date(y,m,0).getDate(),dd=num(d.dd),mo=!dd;
+     S.growth.push({id:uid(),date:`${y}-${pad(m)}-${pad(mo?15:Math.min(dd,dim))}`,mo,h:num(d.h),w:num(d.w),j:num(d.j)});toast(`📏 ${y}년 ${m}월 기록을 저장했어요`);break}
+   case'profile':Object.assign(S.profile,{name:d.name,birth:d.birth,team:d.team,pos:d.pos,sex:d.sex,father:num(d.father),mother:num(d.mother)});S.goal={target:num(d.target),date:d.gdate};closeSheet();break;
+   case'scrap':{const id=uid();S.news.push({id,title:d.title.trim(),source:d.source.trim(),url:d.url.trim(),date:d.date||today(),memo:d.memo.trim(),n:pending.length});
+     if(pending.length){try{await shotPut(id,pending)}catch(err){toast('⚠️ 이미지 저장에 실패했어요');S.news.find(x=>x.id===id).n=0}}pending=[];closeSheet();tab='news';toast('📰 스크랩을 저장했어요');break}
+   case'source':{let tpl=d.tpl.trim();if(!tpl.includes('{q}')){toast('URL에 {q} 자리표시자를 넣어주세요');break}
+     ALL.sources.push({id:uid(),name:d.name.trim(),tpl});save();manageSourcesSheet();toast('🔎 검색 사이트를 추가했어요');return}
+  }
+  save();render(f.dataset.form!=='scrap');
+});
+document.addEventListener('change',e=>{
+  const m=e.target.closest('[data-meal]');if(!m)return;
+  const x=ensureMeal(today());x.slots[m.dataset.meal]??={t:'',ok:false};x.slots[m.dataset.meal].t=m.value;if(m.value)x.slots[m.dataset.meal].ok=true;save();render(true);
+});
+document.addEventListener('input',e=>{if(e.target.id==='q'){q=e.target.value;const p=e.target.selectionStart;render(true);const i=$('#q');i.focus();i.setSelectionRange(p,p)}});
+
+/* ===== 안드로이드 뒤로가기 (Capacitor 앱) ===== */
+try{
+  const CapApp=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.App;
+  if(CapApp&&CapApp.addListener)CapApp.addListener('backButton',()=>{
+    if(locked)CapApp.exitApp();
+    else if(!$('#sheet').hidden)closeSheet();
+    else if(tab!=='home'){tab='home';render()}
+    else CapApp.exitApp();
+  });
+}catch(e){}
+
+/* ===== 시작 ===== */
+(async function init(){
+  ALL=loadAll();
+  const qs=new URLSearchParams(location.search);
+  let fresh=false;
+  if(!ALL){
+    ALL={v:2,cur:null,players:{}};
+    ensureSources(ALL);
+    if(MOCK&&qs.get('open')!=='register'){
+      newPlayer(seed());fresh=true;
+      if(qs.get('open')==='players'){const first=ALL.cur;const st=seed();st.profile={name:'김하늘',sex:'F',birth:addDays(today(),-365*10-100),team:'△△초 농구부',pos:'포워드',father:174,mother:160};st.growth=[];st.news=[];newPlayer(st);ALL.cur=first;S=ALL.players[first]}
+    }
+  }
+  S=ALL.cur?ALL.players[ALL.cur]:null;
+  try{navigator.storage?.persist?.()}catch(e){}
+  if(qs.get('tab')&&views[qs.get('tab')])tab=qs.get('tab');
+  if(qs.get('sub')){const [k,v]=qs.get('sub').split(':');sub[k]=v}
+  if(!S){$('#whoN').textContent='선수';showRegister(true);return}
+  render();
+  if(fresh){await seedNews();render(true);await seedShots();render(true)}
+  if(qs.get('open')==='scrap'&&S.news[0])scrapSheet(S.news[0].id);
+  if(qs.get('open')==='new')newSheet();
+  if(qs.get('open')==='sources')manageSourcesSheet();
+  if(qs.get('open')==='profile')profileSheet();
+  if(qs.get('open')==='players')playersSheet();
+})();
+</script>
+</body>
+</html>
