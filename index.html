@@ -317,6 +317,8 @@ const predicted=()=>{const f=num(S.profile.father),m=num(S.profile.mother);const
 function dayDone(d){const ids=S.routine.map(r=>r.id);if(!ids.length)return 0;const l=S.routineLog[d]||[];return ids.filter(i=>l.includes(i)).length/ids.length}
 function streak(){let d=today(),c=0;if(dayDone(d)<1)d=addDays(d,-1);while(dayDone(d)>=1){c++;d=addDays(d,-1)}return c}
 function mealScore(d){const m=S.meals[d];if(!m)return{a:0,b:SLOTS.length+HABITS.length};let a=0;SLOTS.forEach(([k])=>{if(m.slots?.[k]?.ok)a++});HABITS.forEach(([k])=>{if(m.habits?.[k])a++});return{a,b:SLOTS.length+HABITS.length}}
+const mealPct=d=>{const s=mealScore(d);return s.b?Math.round(s.a/s.b*100):0};
+function monthMealStats(ym){const days=Object.keys(S.meals).filter(d=>d.startsWith(ym)&&(Object.keys(S.meals[d].slots||{}).length||Object.keys(S.meals[d].habits||{}).length));if(!days.length)return{avg:0,n:0};return{avg:Math.round(days.reduce((s,d)=>s+mealPct(d),0)/days.length),n:days.length}}
 function yearOpts(){const cy=new Date().getFullYear(),by=S.profile.birth?+S.profile.birth.slice(0,4):cy-18;let o='';for(let y=cy;y>=Math.min(by,cy);y--)o+=`<option value="${y}">${y}년</option>`;return o}
 function monthOpts(){const cm=new Date().getMonth()+1;let o='';for(let m=1;m<=12;m++)o+=`<option value="${m}" ${m===cm?'selected':''}>${m}월</option>`;return o}
 const dLabel=x=>{const [y,m,d]=x.date.split('-');return x.mo?`${y.slice(2)}.${m}`:`${y.slice(2)}.${m}.${d}`};
@@ -398,11 +400,15 @@ diet(){
     <div class="card good"><h2>✅ 키 성장에 좋은 음식</h2>${FOODS_GOOD.map(f=>`<div class="food"><span class="em">${f[0]}</span><div><b>${f[1]}</b><span class="muted">${f[2]}</span></div></div>`).join('')}</div>
     <div class="card bad"><h2>⚠️ 줄이면 좋은 음식</h2>${FOODS_BAD.map(f=>`<div class="food"><span class="em">${f[0]}</span><div><b>${f[1]}</b><span class="muted">${f[2]}</span></div></div>`).join('')}</div>
     <div class="note">💡 키는 유전 + 영양 + <b>수면</b> + 운동이 함께 만들어요. 성장호르몬은 깊게 잘 때 가장 많이 나와서, 초등~중학생은 9~10시간 수면이 중요해요. 성장이 걱정되면 소아청소년과에서 성장판 검사를 받아보세요.</div>`;
-  const t=today(),m=S.meals[t]||{slots:{},habits:{}},sc=mealScore(t);
-  return seg+`<div class="card"><div class="row between"><h2 style="margin:0">🍽 오늘 (${md(t)} ${DOW[new Date().getDay()]})</h2><span class="pill">${sc.a}/${sc.b}</span></div>
-    <div class="bar" style="margin:10px 0 4px"><i style="width:${sc.a/sc.b*100}%"></i></div>
+  const t=today(),m=S.meals[t]||{slots:{},habits:{}},sc=mealScore(t),pct=mealPct(t),ym=t.slice(0,7),mo=monthMealStats(ym);
+  return seg+`<div class="card"><div class="row between"><h2 style="margin:0">🍽 오늘 (${md(t)} ${DOW[new Date().getDay()]})</h2><span class="pill">${pct}점</span></div>
+    <div class="bar" style="margin:10px 0 4px"><i style="width:${pct}%"></i></div>
+    <div class="muted" style="margin:-2px 0 10px">키 성장 식단 기준 100점 만점 · ${sc.a}/${sc.b} 항목 완료</div>
     ${SLOTS.map(([k,e,n])=>{const s=m.slots?.[k]||{};return `<div class="meal ${s.ok?'done':''}"><div class="hd"><span>${e} ${n}</span><button class="chkbtn" data-act="mealOk" data-k="${k}">${s.ok?'✓ 먹었어요':'먹었나요?'}</button></div><input data-meal="${k}" value="${esc(s.t||'')}" placeholder="무엇을 먹었나요?"></div>`}).join('')}</div>
     <div class="card"><h2>💪 오늘의 성장 습관</h2>${HABITS.map(([k,e,n])=>`<div class="chk ${m.habits?.[k]?'done':''}" data-act="habit" data-k="${k}"><span class="box">${m.habits?.[k]?'✓':''}</span><span class="t">${e} ${n}</span></div>`).join('')}</div>
+    <div class="card"><div class="row between"><h2 style="margin:0">📅 ${+ym.slice(5)}월 식단 평균</h2><span class="pill">${mo.n?mo.avg+'점':'-'}</span></div>
+    <div class="bar" style="margin:10px 0 4px"><i style="width:${mo.avg}%"></i></div>
+    <div class="muted">${mo.n?`이번 달 ${mo.n}일 기록 평균`:'이번 달 기록이 아직 없어요'}</div></div>
     <div class="card"><h2>👍 오늘 추천 메뉴</h2><div class="chips">${['계란','우유','멸치볶음','두부','연어구이','브로콜리','바나나','견과류'].map(x=>`<span class="chip">${x}</span>`).join('')}</div>
     <div class="muted" style="margin-top:8px">훈련 후 30분 안에 <b>단백질 + 탄수화물</b> 간식(우유+바나나 등)이 회복에 좋아요.</div></div>`;
 },
