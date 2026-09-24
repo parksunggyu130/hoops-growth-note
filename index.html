@@ -403,7 +403,7 @@ diet(){
     <div class="muted" style="margin:-2px 0 10px">키 성장 식단 기준 100점 만점 · ${sc.a}/${sc.b} 항목 완료</div>
     ${SLOTS.map(([k,e,n])=>{const s=m.slots?.[k]||{};return `<div class="meal ${s.ok?'done':''}"><div class="hd"><span>${e} ${n}</span><button class="chkbtn" data-act="mealOk" data-k="${k}">${s.ok?'✓ 먹었어요':'먹었나요?'}</button></div><input data-meal="${k}" value="${esc(s.t||'')}" placeholder="무엇을 먹었나요?"></div>`}).join('')}</div>
     <div class="card"><h2>💪 오늘의 성장 습관</h2>${HABITS.map(([k,e,n])=>`<div class="chk ${m.habits?.[k]?'done':''}" data-act="habit" data-k="${k}"><span class="box">${m.habits?.[k]?'✓':''}</span><span class="t">${e} ${n}</span></div>`).join('')}</div>
-    <div class="card"><div class="row between"><h2 style="margin:0">📅 ${+ym.slice(5)}월 식단 평균</h2><span class="pill">${mo.n?mo.avg+'점':'-'}</span></div>
+    <div class="card"><h2>📅 ${+ym.slice(5)}월 식단 평균 <span class="pill">${mo.n?mo.avg+'점':'-'}</span><span class="sp"></span><button class="more" data-act="mealHistory">지난 기록</button></h2>
     <div class="bar" style="margin:10px 0 4px"><i style="width:${mo.avg}%"></i></div>
     <div class="muted">${mo.n?`이번 달 ${mo.n}일 기록 평균`:'이번 달 기록이 아직 없어요'}</div></div>
     <div class="card"><h2>👍 오늘 추천 메뉴</h2><div class="chips">${['계란','우유','멸치볶음','두부','연어구이','브로콜리','바나나','견과류'].map(x=>`<span class="chip">${x}</span>`).join('')}</div>
@@ -531,6 +531,12 @@ function editGrowthSheet(id){
    <button class="btn block">저장</button></form>`,true);
 }
 
+function mealHistorySheet(){
+  const yms=[...new Set(Object.keys(S.meals).filter(d=>{const mm=S.meals[d];return Object.keys(mm.slots||{}).length||Object.keys(mm.habits||{}).length}).map(d=>d.slice(0,7)))].sort((a,b)=>b.localeCompare(a));
+  openSheet(`<h3>📅 월별 식단 점수 기록</h3>
+   ${yms.length?yms.map(ym=>{const st=monthMealStats(ym),[y,mo]=ym.split('-');return `<div class="card"><h2 style="margin:0 0 8px">${y}년 ${+mo}월<span class="sp"></span><span class="pill">${st.avg}점</span></h2><div class="bar"><i style="width:${st.avg}%"></i></div><div class="muted" style="margin-top:6px">${st.n}일 기록</div></div>`}).join(''):'<div class="empty">아직 기록이 없어요</div>'}`,true);
+}
+
 async function scrapSheet(id){
   const n=S.news.find(x=>x.id===id);if(!n)return;
   const urls=await shotUrls(id);
@@ -622,6 +628,7 @@ document.addEventListener('click',async e=>{
    case'editGoal':editGoalSheet(id);break;
    case'delGoal':if(!confirm('이 목표를 삭제할까요?'))break;S.goals=S.goals.filter(x=>x.id!==id);save();render(true);break;
    case'editGrowth':editGrowthSheet(id);break;
+   case'mealHistory':mealHistorySheet();break;
    case'delGrowth':if(confirm('이 기록을 삭제할까요?')){S.growth=S.growth.filter(x=>x.id!==id);save();render(true)}break;
    case'mealOk':{const m=ensureMeal(today());m.slots[el.dataset.k]??={t:'',ok:false};m.slots[el.dataset.k].ok=!m.slots[el.dataset.k].ok;save();render(true);break}
    case'habit':{const m=ensureMeal(today());m.habits[el.dataset.k]=!m.habits[el.dataset.k];save();render(true);break}
